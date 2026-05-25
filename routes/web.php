@@ -1,7 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\PerpustakaanController;
+use App\Http\Controllers\KategoriController;
+use App\Models\Buku;
+use App\Models\Anggota;
 
 // Route default
 Route::get('/', function () {
@@ -18,117 +22,110 @@ Route::get('/info', function () {
     return '<h1>Sistem Perpustakaan</h1><p>Selamat datang!</p>';
 });
 
-// Route JSON
-Route::get('/buku', function () {
-    return [
-        'judul' => 'Laravel Programming',
-        'pengarang' => 'John Doe',
-        'harga' => 150000
-    ];
-});
-// Route dengan parameter required
-Route::get('/buku/{id}', function ($id) {
-    return "Detail buku dengan ID: " . $id;
-});
-
 // Route dengan multiple parameters
 Route::get('/search/{kategori}/{keyword}', function ($kategori, $keyword) {
     return "Cari buku kategori: $kategori dengan keyword: $keyword";
 });
-Route::get('/perpustakaan', [PerpustakaanController::class, 'index']); 
-Route::get('/anggota', function () {
-    
-    $anggota_list = [
-        [
-            'id' => 1,
-            'kode' => 'AGT-001',
-            'nama' => 'Budi Santoso',
-            'email' => 'budi@email.com',
-            'status' => 'Aktif'
-        ],
-        [
-            'id' => 2,
-            'kode' => 'AGT-002',
-            'nama' => 'Siti Aminah',
-            'email' => 'siti@email.com',
-            'status' => 'Aktif'
-        ],
-        [
-            'id' => 3,
-            'kode' => 'AGT-003',
-            'nama' => 'Andi Wijaya',
-            'email' => 'andi@email.com',
-            'status' => 'Nonaktif'
-        ],
-        [
-            'id' => 4,
-            'kode' => 'AGT-004',
-            'nama' => 'Rina Lestari',
-            'email' => 'rina@email.com',
-            'status' => 'Aktif'
-        ],
-        [
-            'id' => 5,
-            'kode' => 'AGT-005',
-            'nama' => 'Dedi Kurniawan',
-            'email' => 'dedi@email.com',
-            'status' => 'Aktif'
-        ],
-    ];
 
-    return view('anggota.index', compact('anggota_list'));
-});
-Route::get('/anggota/{id}', function ($id) {
+Route::get('/perpustakaan', [PerpustakaanController::class, 'index']);
 
-    $data = [
-        1 => [
-            'kode' => 'AGT-001',
-            'nama' => 'Budi Santoso',
-            'email' => 'budi@email.com',
-            'telepon' => '081234567890',
-            'alamat' => 'Jakarta',
-            'status' => 'Aktif'
-        ],
-        2 => [
-            'kode' => 'AGT-002',
-            'nama' => 'Siti Aminah',
-            'email' => 'siti@email.com',
-            'telepon' => '081234567891',
-            'alamat' => 'Bandung',
-            'status' => 'Aktif'
-        ],
-        3 => [
-            'kode' => 'AGT-003',
-            'nama' => 'Andi Wijaya',
-            'email' => 'andi@email.com',
-            'telepon' => '081234567892',
-            'alamat' => 'Depok',
-            'status' => 'Nonaktif'
-        ],
-        4 => [
-            'kode' => 'AGT-004',
-            'nama' => 'Rina Lestari',
-            'email' => 'rina@email.com',
-            'telepon' => '081234567893',
-            'alamat' => 'Bekasi',
-            'status' => 'Aktif'
-        ],
-        5 => [
-            'kode' => 'AGT-005',
-            'nama' => 'Dedi Kurniawan',
-            'email' => 'dedi@email.com',
-            'telepon' => '081234567894',
-            'alamat' => 'Bogor',
-            'status' => 'Aktif'
-        ],
-    ];
-
-    $anggota = $data[$id] ?? null;
-
-    return view('anggota.show', compact('anggota'));
-});
-use App\Http\Controllers\KategoriController;
 
 Route::get('/kategori', [KategoriController::class, 'index']);
 Route::get('/kategori/search/{keyword}', [KategoriController::class, 'search']);
 Route::get('/kategori/{id}', [KategoriController::class, 'show']);
+
+// Route test koneksi database
+Route::get('/test-db', function () {
+    try {
+        // use DB facade helpers to avoid static analysis error for getPdo()/getDatabaseName()
+        DB::getPdo();
+        $dbName = DB::getDatabaseName();
+
+        return "Koneksi database berhasil!<br />Database: <strong>{$dbName}</strong>";
+    } catch (\Exception $e) {
+        return "Koneksi database gagal!<br />Error: " . $e->getMessage();
+    }
+});
+Route::get('/test-accessor-scope', function () {
+
+    $html = '<h1>Testing Accessor & Scope</h1>';
+
+    // ================= BUKU =================
+    $html .= '<h2>Buku</h2>';
+    $html .= '<table border="1" cellpadding="5">
+                <tr>
+                    <th>Judul</th>
+                    <th>Stok</th>
+                    <th>Status</th>
+                </tr>';
+
+    foreach (Buku::all() as $b) {
+        $html .= '<tr>
+                    <td>'.$b->judul.'</td>
+                    <td>'.$b->stok.'</td>
+                    <td>'.strip_tags($b->status_stok_badge).'</td>
+                  </tr>';
+    }
+
+    $html .= '</table>';
+
+    // ================= BUKU TERBARU =================
+    $html .= '<h2>Buku Terbaru</h2>';
+    $html .= '<table border="1" cellpadding="5">
+                <tr><th>Judul</th></tr>';
+
+    foreach (Buku::terbaru()->get() as $b) {
+        $html .= '<tr><td>'.$b->judul.'</td></tr>';
+    }
+
+    $html .= '</table>';
+
+    // ================= BUKU STOK MENIPIS =================
+    $html .= '<h2>Buku Stok Menipis</h2>';
+    $html .= '<table border="1" cellpadding="5">
+                <tr>
+                    <th>Judul</th>
+                    <th>Stok</th>
+                </tr>';
+
+    foreach (Buku::stokMenipis()->get() as $b) {
+        $html .= '<tr>
+                    <td>'.$b->judul.'</td>
+                    <td>'.$b->stok.'</td>
+                  </tr>';
+    }
+
+    $html .= '</table>';
+
+    // ================= ANGGOTA =================
+    $html .= '<h2>Anggota</h2>';
+    $html .= '<table border="1" cellpadding="5">
+                <tr>
+                    <th>Nama</th>
+                    <th>Status</th>
+                    <th>Kategori Usia</th>
+                </tr>';
+
+    foreach (Anggota::all() as $a) {
+        $html .= '<tr>
+                    <td>'.$a->nama.'</td>
+                    <td>'.strip_tags($a->status_badge).'</td>
+                    <td>'.$a->kategori_usia.'</td>
+                  </tr>';
+    }
+
+    $html .= '</table>';
+
+    // ================= BULAN INI =================
+    $html .= '<h2>Anggota Bulan Ini</h2>';
+    $html .= '<table border="1" cellpadding="5">
+                <tr><th>Nama</th></tr>';
+
+    foreach (Anggota::terdaftarBulanIni()->get() as $a) {
+        $html .= '<tr><td>'.$a->nama.'</td></tr>';
+    }
+
+    $html .= '</table>';
+
+    return $html;
+});
