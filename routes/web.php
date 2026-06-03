@@ -8,19 +8,26 @@ use App\Models\Buku;
 use App\Models\Anggota;
 use App\Http\Controllers\AnggotaController;
 use App\Http\Controllers\BukuController;
-
+use App\Http\Controllers\DashboardController;
 
 // Route default
 Route::get('/', function () {
     return view('home');
 })->name('home');
 
-Route::resource('buku', BukuController::class);
+Route::get('/buku/search', [BukuController::class, 'search'])
+    ->name('buku.search');
+
 
 Route::get('/buku/kategori/{kategori}', [BukuController::class, 'filterKategori'])
      ->name('buku.kategori');
 
+Route::resource('buku', BukuController::class);
+
 Route::resource('anggota', AnggotaController::class);
+
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->name('dashboard');
 
 // Route hello
 Route::get('/hello', function () {

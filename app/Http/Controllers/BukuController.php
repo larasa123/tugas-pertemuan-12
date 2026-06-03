@@ -85,20 +85,62 @@ class BukuController extends Controller
     /**
      * Filter buku berdasarkan kategori.
      */
-    public function filterKategori($kategori)
-    {
-        $bukus = Buku::where('kategori', $kategori)->latest()->get();
-        
-        $totalBuku = $bukus->count();
-        $bukuTersedia = $bukus->where('stok', '>', 0)->count();
-        $bukuHabis = $bukus->where('stok', 0)->count();
-        
-        return view('buku.index', compact(
-            'bukus',
-            'totalBuku',
-            'bukuTersedia',
-            'bukuHabis',
-            'kategori'
-        ));
+   public function filterKategori($kategori)
+{
+    $bukus = Buku::where('kategori', $kategori)->latest()->get();
+
+    $totalBuku = $bukus->count();
+    $bukuTersedia = $bukus->where('stok', '>', 0)->count();
+    $bukuHabis = $bukus->where('stok', 0)->count();
+
+    return view('buku.index', compact(
+        'bukus',
+        'totalBuku',
+        'bukuTersedia',
+        'bukuHabis',
+        'kategori'
+    ));
+}
+
+public function search(Request $request)
+{
+    $query = Buku::query();
+
+    if ($request->keyword) {
+        $query->where(function ($q) use ($request) {
+            $q->where('judul', 'like', '%' . $request->keyword . '%')
+              ->orWhere('pengarang', 'like', '%' . $request->keyword . '%')
+              ->orWhere('penerbit', 'like', '%' . $request->keyword . '%');
+        });
     }
+
+    if ($request->kategori) {
+        $query->where('kategori', $request->kategori);
+    }
+
+    if ($request->tahun) {
+        $query->where('tahun_terbit', $request->tahun);
+    }
+
+    if ($request->ketersediaan == 'tersedia') {
+        $query->where('stok', '>', 0);
+    }
+
+    if ($request->ketersediaan == 'habis') {
+        $query->where('stok', 0);
+    }
+
+    $bukus = $query->latest()->get();
+
+    $totalBuku = $bukus->count();
+    $bukuTersedia = $bukus->where('stok', '>', 0)->count();
+    $bukuHabis = $bukus->where('stok', 0)->count();
+
+    return view('buku.index', compact(
+        'bukus',
+        'totalBuku',
+        'bukuTersedia',
+        'bukuHabis'
+    ));
+}
 }

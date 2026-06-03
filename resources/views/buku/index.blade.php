@@ -63,6 +63,57 @@
         </div>
     </div>
 </div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form action="{{ route('buku.search') }}" method="GET">
+
+            <div class="row">
+
+                <div class="col-md-3">
+                    <input type="text"
+                           name="keyword"
+                           class="form-control"
+                           placeholder="Cari judul, pengarang...">
+                </div>
+
+                <div class="col-md-3">
+                    <select name="kategori" class="form-select">
+                        <option value="">Semua Kategori</option>
+                        <option value="Programming">Programming</option>
+                        <option value="Database">Database</option>
+                        <option value="Web Design">Web Design</option>
+                        <option value="Networking">Networking</option>
+                        <option value="Data Science">Data Science</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <input type="number"
+                           name="tahun"
+                           class="form-control"
+                           placeholder="Tahun">
+                </div>
+
+                <div class="col-md-2">
+                    <select name="ketersediaan" class="form-select">
+                        <option value="">Semua</option>
+                        <option value="tersedia">Tersedia</option>
+                        <option value="habis">Habis</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        Cari
+                    </button>
+                </div>
+
+            </div>
+
+        </form>
+    </div>
+</div>
  
 {{-- Filter Kategori --}}
 <div class="card mb-4">
@@ -94,86 +145,25 @@
 </div>
  
 {{-- Daftar Buku --}}
-@forelse ($bukus as $buku)
-    <div class="card mb-3">
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-2 text-center">
-                    <i class="bi bi-book text-primary" style="font-size: 4rem;"></i>
-                    <div class="mt-2">
-                        <span class="badge bg-{{ $buku->kategori == 'Programming' ? 'primary' : ($buku->kategori == 'Database' ? 'success' : ($buku->kategori == 'Web Design' ? 'info' : ($buku->kategori == 'Networking' ? 'warning' : 'danger'))) }}">
-                            {{ $buku->kategori }}
-                        </span>
-                    </div>
-                </div>
-                
-                <div class="col-md-7">
-                    <h5 class="card-title">
-                        <a href="{{ route('buku.show', $buku->id) }}" class="text-decoration-none">
-                            {{ $buku->judul }}
-                        </a>
-                    </h5>
-                    
-                    <p class="card-text text-muted mb-2">
-                        <i class="bi bi-person"></i> {{ $buku->pengarang }} | 
-                        <i class="bi bi-building"></i> {{ $buku->penerbit }} | 
-                        <i class="bi bi-calendar"></i> {{ $buku->tahun_terbit }}
-                    </p>
-                    
-                    @if ($buku->isbn)
-                        <p class="card-text small text-muted mb-1">
-                            <i class="bi bi-upc"></i> ISBN: {{ $buku->isbn }}
-                        </p>
-                    @endif
-                    
-                    @if ($buku->deskripsi)
-                        <p class="card-text">
-                            {{ Str::limit($buku->deskripsi, 150) }}
-                        </p>
-                    @endif
-                </div>
-                
-                <div class="col-md-3 text-end">
-                    <h4 class="text-primary mb-2">
-                        {{ $buku->harga_format }}
-                    </h4>
-                    
-                    <div class="mb-3">
-                        @if ($buku->stok > 0)
-                            <span class="badge bg-success">
-                                <i class="bi bi-check-circle"></i> Tersedia
-                            </span>
-                            <div class="text-muted small mt-1">
-                                Stok: {{ $buku->stok }} buku
-                            </div>
-                        @else
-                            <span class="badge bg-danger">
-                                <i class="bi bi-x-circle"></i> Habis
-                            </span>
-                        @endif
-                    </div>
-                    
-                    <div class="btn-group-vertical d-grid gap-2">
-                        <a href="{{ route('buku.show', $buku->id) }}" class="btn btn-sm btn-info text-white">
-                            <i class="bi bi-eye"></i> Detail
-                        </a>
-                        <a href="{{ route('buku.edit', $buku->id) }}" class="btn btn-sm btn-warning">
-                            <i class="bi bi-pencil"></i> Edit
-                        </a>
-                    </div>
-                </div>
-            </div>
+<div class="row">
+
+@forelse($bukus as $buku)
+
+    <div class="col-md-4 mb-4">
+        <x-buku-card :buku="$buku" />
+    </div>
+
+@empty
+
+    <div class="col-12">
+        <div class="alert alert-info">
+            Tidak ada data buku
         </div>
     </div>
-@empty
-    <div class="alert alert-info">
-        <i class="bi bi-info-circle"></i>
-        Tidak ada data buku
-        @isset($kategori)
-            dengan kategori <strong>{{ $kategori }}</strong>
-        @endisset
-    </div>
+
 @endforelse
+
+</div>
  
 @if ($bukus->count() > 0)
     <div class="text-center mt-4">
