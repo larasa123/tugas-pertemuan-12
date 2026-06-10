@@ -1,4 +1,10 @@
 <div class="card h-100 shadow-sm">
+
+    <div class="p-2">
+        <input type="checkbox"
+               name="buku_ids[]"
+               value="{{ $buku->id }}">
+    </div>
     <div class="card-body">
 
         <div class="text-center mb-3">
@@ -50,6 +56,21 @@
                    class="btn btn-warning btn-sm">
                     Edit
                 </a>
+                {{-- 
+                <form action="{{ route('buku.destroy', $buku->id) }}"
+                method="POST"
+                class="d-inline delete-form">
+
+                @csrf
+                @method('DELETE')
+
+                <button type="button"
+                        class="btn btn-danger btn-sm btn-delete"
+                        data-judul="{{ $buku->judul }}">
+                    Hapus
+                </button>
+            </form>
+            --}}
             </div>
         @endif
 

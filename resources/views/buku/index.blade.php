@@ -8,11 +8,18 @@
         <i class="bi bi-book"></i>
         Daftar Buku
     </h1>
-    <a href="{{ route('buku.create') }}" class="btn btn-primary">
-        <i class="bi bi-plus-circle"></i> Tambah Buku
-    </a>
+
+    <div>
+        <a href="{{ route('buku.export') }}" class="btn btn-success me-2">
+            <i class="bi bi-download"></i> Export CSV
+        </a>
+
+        <a href="{{ route('buku.create') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Tambah Buku
+        </a>
+    </div>
 </div>
- 
+
 {{-- Statistik Cards --}}
 <div class="row mb-4">
     <div class="col-md-4">
@@ -145,26 +152,42 @@
 </div>
  
 {{-- Daftar Buku --}}
-<div class="row">
+<form action="{{ route('buku.bulk-delete') }}" method="POST">
+    @csrf
 
-@forelse($bukus as $buku)
+    <div class="mb-3">
+        <input type="checkbox" id="select-all">
+        <label for="select-all">Pilih Semua</label>
 
-    <div class="col-md-4 mb-4">
-        <x-buku-card :buku="$buku" />
+        <button type="submit"
+                class="btn btn-danger btn-sm ms-3"
+                onclick="return confirm('Yakin ingin menghapus buku yang dipilih?')">
+            Hapus Terpilih
+        </button>
     </div>
 
-@empty
+    <div class="row">
 
-    <div class="col-12">
-        <div class="alert alert-info">
-            Tidak ada data buku
+    @forelse($bukus as $buku)
+
+        <div class="col-md-4 mb-4">
+            <x-buku-card :buku="$buku" />
         </div>
+
+    @empty
+
+        <div class="col-12">
+            <div class="alert alert-info">
+                Tidak ada data buku
+            </div>
+        </div>
+
+    @endforelse
+
     </div>
 
-@endforelse
+</form>
 
-</div>
- 
 @if ($bukus->count() > 0)
     <div class="text-center mt-4">
         <p class="text-muted">
@@ -175,4 +198,11 @@
         </p>
     </div>
 @endif
+<script>
+document.getElementById('select-all').addEventListener('change', function() {
+    document.querySelectorAll('input[name="buku_ids[]"]').forEach(cb => {
+        cb.checked = this.checked;
+    });
+});
+</script>
 @endsection

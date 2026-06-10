@@ -12,6 +12,9 @@
     {{-- Bootstrap Icons --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
+    {{-- SweetAlert2 CSS --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.min.css">
+
     {{-- Custom CSS --}}
     <style>
         body {
@@ -81,6 +84,62 @@
     {{-- Bootstrap JS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
+    {{-- SweetAlert2 JS --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.all.min.js"></script>
+
+    <script>
+    // SweetAlert Delete
+    document.querySelectorAll('.btn-delete').forEach(button => {
+        button.addEventListener('click', function () {
+
+            const form = this.closest('form');
+            const judul = this.dataset.judul;
+
+            Swal.fire({
+                title: 'Konfirmasi Hapus',
+                text: `Apakah Anda yakin ingin menghapus buku "${judul}"?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+
+        });
+    });
+
+    // Loading Submit
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function () {
+
+            const submitBtn = this.querySelector('button[type="submit"]');
+
+            if (submitBtn && !this.classList.contains('delete-form')) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML =
+                    '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
+            }
+
+        });
+    });
+
+    // Auto Hide Alert
+    setTimeout(function () {
+
+        let alerts = document.querySelectorAll('.alert');
+
+        alerts.forEach(function (alert) {
+            let bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+
+    }, 5000);
+</script>
     @stack('scripts')
 </body>
 </html>
