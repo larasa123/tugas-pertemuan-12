@@ -10,6 +10,7 @@ use App\Http\Controllers\AnggotaController;
 use App\Http\Controllers\BukuController;
 use App\Http\Controllers\DashboardController;
 
+
 // Route default
 Route::get('/', function () {
     return view('home');
@@ -29,6 +30,11 @@ Route::get('/buku/export', [BukuController::class, 'export'])
      ->name('buku.export');
 
 Route::resource('buku', BukuController::class);
+
+Route::get('/anggota/search', [AnggotaController::class, 'search'])->name('anggota.search');
+
+Route::get('/anggota/export', [AnggotaController::class, 'export'])
+    ->name('anggota.export');
 
 Route::resource('anggota', AnggotaController::class);
 
